@@ -1,44 +1,3 @@
-# 📊 DASHBOARD FERIA - CÓDIGO COMPLETO
-
-## 🎨 COLORES DE MARCA QUANTA
-
-```css
-/* Colores principales */
---quanta-rosa-principal: #E91E63;
---quanta-rosa-claro: #F06292;
---quanta-rosa-oscuro: #C2185B;
-
-/* Púrpuras (gradientes) */
---quanta-purpura-1: #667EEA;
---quanta-purpura-2: #764BA2;
-
-/* Grises */
---quanta-gris-oscuro: #1A202C;
---quanta-gris-medio: #4A5568;
---quanta-gris-claro: #718096;
---quanta-gris-muy-claro: #E2E8F0;
-
-/* Acentos */
---quanta-verde-exito: #10B981;
---quanta-amarillo-advertencia: #F59E0B;
---quanta-azul-info: #3B82F6;
-```
-
----
-
-## 💻 CÓDIGO HTML COMPLETO DEL DASHBOARD
-
-**Nombre del archivo:** `index.html`
-
-**Instrucciones:**
-1. Copia todo el código de abajo
-2. Pégalo en GitHub en un archivo llamado `index.html`
-3. Activa GitHub Pages
-4. ¡Listo!
-
----
-
-```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -412,7 +371,6 @@
   <script type="text/babel">
     const { useState, useEffect } = React;
 
-    // Configuración Supabase
     const SUPABASE_URL = 'https://cmtmracgtlbpyzjjjnrt.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNtdG1yYWNndGxicHl6ampqbnJ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzE5NjYxNzUsImV4cCI6MjA0NzU0MjE3NX0.vfCJWGZM2oeL4-1yDz_-rTh8-F8jqOGwvIRXL35Tmcs';
     
@@ -426,18 +384,15 @@
       const [error, setError] = useState(null);
       const [lastUpdate, setLastUpdate] = useState(new Date());
 
-      // Función para obtener datos
       const fetchData = async () => {
         try {
           setLoading(true);
           setError(null);
 
-          // Fechas de la feria en Colombia (UTC-5)
-          // Convertimos a UTC para la consulta
           const dias = {
             '6': { 
-              inicio: '2026-05-06T05:00:00.000Z',  // 00:00 COT = 05:00 UTC
-              fin: '2026-05-07T04:59:59.999Z'      // 23:59 COT = 04:59 UTC siguiente día
+              inicio: '2026-05-06T05:00:00.000Z',
+              fin: '2026-05-07T04:59:59.999Z'
             },
             '7': { 
               inicio: '2026-05-07T05:00:00.000Z',
@@ -454,7 +409,6 @@
           };
 
           const periodo = dias[selectedDay];
-          console.log('Consultando período:', periodo);
 
           let query = supabaseClient
             .from('landing_expoindustrial')
@@ -466,34 +420,28 @@
 
           if (queryError) throw queryError;
 
-          console.log('Datos obtenidos:', result);
-          console.log('Total registros:', result?.length || 0);
-
           setData(result || []);
           setLastUpdate(new Date());
         } catch (err) {
           setError(err.message);
-          console.error('Error fetching data:', err);
+          console.error('Error:', err);
         } finally {
           setLoading(false);
         }
       };
 
-      // Fetch inicial y cada 30 segundos
       useEffect(() => {
         fetchData();
         const interval = setInterval(fetchData, 30000);
         return () => clearInterval(interval);
       }, [selectedDay]);
 
-      // Cálculos de métricas
       const totalContactados = data.length;
       const porCalendly = data.filter(l => l.fuente?.toLowerCase() === 'calendly').length;
       const porLanding = data.filter(l => l.fuente?.toLowerCase() === 'landing').length;
       const agendados = data.filter(l => l.meeting_scheduled === true).length;
       const tasaConversion = totalContactados > 0 ? ((agendados / totalContactados) * 100).toFixed(1) : 0;
 
-      // Ranking de comerciales
       const comercialesMap = {};
       data.forEach(lead => {
         const comercial = lead.comercial || 'Sin asignar';
@@ -512,18 +460,14 @@
         if (lead.fuente?.toLowerCase() === 'landing') comercialesMap[comercial].landing++;
       });
 
-      const ranking = Object.values(comercialesMap)
-        .sort((a, b) => b.total - a.total);
+      const ranking = Object.values(comercialesMap).sort((a, b) => b.total - a.total);
 
       return (
         <div className="container">
-          {/* Header */}
           <div className="header">
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div>
-                <h1>
-                  🎯 Dashboard Feria Expoindustrial
-                </h1>
+                <h1>🎯 Dashboard Feria Expoindustrial</h1>
                 <p>Mayo 6-8, 2026 • Actualización en tiempo real</p>
               </div>
               <div className={`status-indicator ${loading ? 'loading' : ''}`}>
@@ -548,7 +492,6 @@
             </div>
           )}
 
-          {/* Filtros */}
           <div className="filters">
             <label>Día de feria:</label>
             <div className="filter-buttons">
@@ -573,13 +516,12 @@
               <button 
                 className={`filter-btn ${selectedDay === '8' ? 'active' : ''}`}
                 onClick={() => setSelectedDay('8')}
-                >
+              >
                 Mayo 8
               </button>
             </div>
           </div>
 
-          {/* Métricas principales */}
           <div className="metrics-grid">
             <div className="metric-card">
               <div className="metric-label">Total Contactados</div>
@@ -608,7 +550,6 @@
             </div>
           </div>
 
-          {/* Ranking de Comerciales */}
           <div className="section">
             <h2>🏆 Ranking de Comerciales</h2>
             {ranking.length === 0 ? (
@@ -639,7 +580,6 @@
             )}
           </div>
 
-          {/* Detalle por origen */}
           <div className="section">
             <h2>📊 Detalle por Origen</h2>
             <div className="table-container">
@@ -673,57 +613,8 @@
       );
     }
 
-    // Render
     const root = ReactDOM.createRoot(document.getElementById('root'));
     root.render(<Dashboard />);
   </script>
 </body>
 </html>
-```
-
----
-
-## 📋 CHECKLIST PARA GITHUB
-
-1. ✅ Ve a tu repo: `seguimiento-R1`
-2. ✅ Click en **Add file** → **Create new file**
-3. ✅ Nombre del archivo: `index.html`
-4. ✅ Pega todo el código de arriba
-5. ✅ Click **Commit changes**
-6. ✅ Ve a **Settings** → **Pages**
-7. ✅ Source: **Deploy from a branch**
-8. ✅ Branch: **main** / carpeta **/ (root)**
-9. ✅ Click **Save**
-10. ✅ Espera 2 minutos
-11. ✅ Tu URL: `https://TU-USUARIO.github.io/seguimiento-R1/`
-
----
-
-## 🎨 VARIANTES DE COLOR QUANTA PARA PERSONALIZAR
-
-Si quieres cambiar los colores del dashboard, busca estas líneas en el CSS:
-
-**Botones activos:**
-```css
-.filter-btn.active {
-  background: #E91E63;  /* Cambiar por tu color */
-}
-```
-
-**Ranking (número de leads):**
-```css
-.ranking-count {
-  color: #E91E63;  /* Cambiar por tu color */
-}
-```
-
-**Hover en rankings:**
-```css
-.ranking-item:hover {
-  border-color: #E91E63;  /* Cambiar por tu color */
-}
-```
-
----
-
-¡Listo para pegar y publicar! 🚀
